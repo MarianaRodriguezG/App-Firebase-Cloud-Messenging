@@ -16,35 +16,29 @@ class MiApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        crearCanalDeNotificacion()
-        obtenerTokenFCM()
-    }
 
-    private fun crearCanalDeNotificacion() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val canal = NotificationChannel(
-                NOTIFICATION_CHANNEL_ID,
-                "Notificaciones de FCM",
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Canal para recibir notificaciones push de Firebase Cloud Messaging"
-            }
-
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(canal)
-        }
-    }
-
-    private fun obtenerTokenFCM() {
+        // ✅ Mostrar token en Logcat
         Firebase.messaging.token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
-                Log.w("FCM_TOKEN", "No se pudo obtener el token", task.exception)
+                Log.w("FCM_TOKEN", "❌ No se pudo obtener el token", task.exception)
                 return@addOnCompleteListener
             }
 
             val token = task.result
-            Log.d("FCM_TOKEN", "Token generado: $token")
-            // Aquí puedes guardar o enviar el token a un servidor si lo necesitas
+            Log.d("FCM_TOKEN", "✅ Token generado: $token")
+        }
+
+        // ✅ Crear canal de notificación para Android 8+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val canal = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "Notificaciones FCM",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Canal para mensajes push de Firebase"
+            }
+            val manager = getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(canal)
         }
     }
 }
